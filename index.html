@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handheld - Control de Inventario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 10px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        label { font-weight: bold; display: block; margin-top: 12px; }
+        
+        .tipo-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .tipo-btn {
+            flex: 1;
+            margin: 5px;
+            text-align: center;
+        }
+        .tipo-btn input { display: none; }
+        .tipo-btn span {
+            display: block;
+            padding: 15px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .tipo-btn input:checked + span.entrada { background: #2ecc71; color: white; }
+        .tipo-btn input:checked + span.salida { background: #e74c3c; color: white; }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            background-color: #3498db;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button[type="submit"]:disabled { background-color: #bdc3c7; }
+        #mensaje {
+            margin-top: 15px;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Registro de Inventario</h2>
+    
+    <form id="inventarioForm">
+        <label>Movimiento:</label>
+        <div class="tipo-container">
+            <label class="tipo-btn">
+                <input type="radio" name="tipo" value="Entrada" checked>
+                <span class="entrada">ENTRADA</span>
+            </label>
+            <label class="tipo-btn">
+                <input type="radio" name="tipo" value="Salida">
+                <span class="salida">SALIDA</span>
+            </label>
+        </div>
+
+        <label for="codigo">Código de Barras / SKU:</label>
+        <input type="text" id="codigo" name="codigo" required autofocus placeholder="Escanee producto">
+
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" id="cantidad" name="cantidad" value="1" min="1" required>
+
+        <label id="lblPosicion" for="posicion">Posición de Guardado:</label>
+        <input type="text" id="posicion" name="posicion" required placeholder="Ej: Estante A-1">
+
+        <button type="submit" id="btnEnviar">Enviar a Google Sheets</button>
+    </form>
+
+    <div id="mensaje"></div>
+</div>
+
+<script>
+    // REEMPLAZA ESTA URL CON LA DE TU GOOGLE APPS SCRIPT
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzc1-GYHEGpA0PNkgPlopSDTV5oWK8VVNcqDLFbCk80KStuB01XNH6NBs1j4kIm8Cv50A/exec";
+
+    // Cambiar dinámicamente las etiquetas según sea Entrada o Salida
+    const radios = document.querySelectorAll('input[name="tipo"]');
+    const lblPosicion = document.getElementById('lblPosicion');
+    const inputPosicion = document.getElementById('posicion');
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'Entrada') {
+                lblPosicion.innerText = "Posición de Guardado:";
+                inputPosicion.placeholder = "Ej: Estante A-1";
+            } else {
+                lblPosicion.innerText = "Origen de Salida (¿De dónde sale?):";
+                inputPosicion.placeholder = "Ej: Estante A-1 o Mesa de despacho";
+            }
+        });
+    });
+
+    // Envío del Formulario
+    document.getElementById('inventarioForm').addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        
+        const btn = document.getElementById('btnEnviar');
+        const msgDiv = document.getElementById('mensaje');
+        
+        btn.disabled = true;
+        btn.innerText = "Enviando...";
+        
+        const formData = new FormData(this);
+        const queryParams = new URLSearchParams(formData).toString();
+        
+        fetch(`${WEB_APP_URL}?${queryParams}`, {
+            method: 'POST'
+        })
+        .then(response => response.text())
+        .then(data => {
+            if(data.includes("Éxito")) {
+                msgDiv.style.backgroundColor = "#d4edda";
+                msgDiv.style.color = "#155724";
+                msgDiv.innerHTML = data;
+                
+                // Limpiar campos para la siguiente lectura
+                document.getElementById('codigo').value = '';
+                document.getElementById('cantidad').value = '1';
+                document.getElementById('posicion').value = '';
+                document.getElementById('codigo').focus(); // Foco al código para agilizar
+            } else {
+                msgDiv.style.backgroundColor = "#f8d7da";
+                msgDiv.style.color = "#721c24";
+                msgDiv.innerHTML = data;
+            }
+            msgDiv.style.display = "block";
+        })
+        .catch(error => {
+            msgDiv.style.backgroundColor = "#f8d7da";
+            msgDiv.style.color = "#721c24";
+            msgDiv.innerHTML = "Error de red o configuración: " + error;
+            msgDiv.style.display = "block";
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerText = "Enviar a Google Sheets";
+        });
+    });
+</script>
+
+</body>
+</html>
