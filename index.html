@@ -54,6 +54,15 @@
             border-radius: 4px;
             font-size: 16px;
         }
+        
+        /* Estilo visual para indicar que el campo está bloqueado */
+        input[readonly] {
+            background-color: #e9ecef;
+            color: #6c757d;
+            border: 1px solid #ced4da;
+            cursor: not-allowed;
+        }
+
         button[type="submit"] {
             width: 100%;
             background-color: #3498db;
@@ -99,7 +108,7 @@
         <input type="text" id="codigo" name="codigo" required autofocus placeholder="Escanee producto">
 
         <label for="cantidad">Cantidad:</label>
-        <input type="number" id="cantidad" name="cantidad" value="1" min="1" required>
+        <input type="number" id="cantidad" name="cantidad" value="1" min="1" required readonly>
 
         <label id="lblPosicion" for="posicion">Posición de Guardado:</label>
         <input type="text" id="posicion" name="posicion" required placeholder="Ej: Estante A-1">
@@ -111,7 +120,6 @@
 </div>
 
 <script>
-    // REEMPLAZA ESTA URL CON LA DE TU GOOGLE APPS SCRIPT
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzc1-GYHEGpA0PNkgPlopSDTV5oWK8VVNcqDLFbCk80KStuB01XNH6NBs1j4kIm8Cv50A/exec";
 
     // Cambiar dinámicamente las etiquetas según sea Entrada o Salida
@@ -156,7 +164,7 @@
                 
                 // Limpiar campos para la siguiente lectura
                 document.getElementById('codigo').value = '';
-                document.getElementById('cantidad').value = '1';
+                document.getElementById('cantidad').value = '1'; // Se mantiene en 1
                 document.getElementById('posicion').value = '';
                 document.getElementById('codigo').focus(); // Foco al código para agilizar
             } else {
