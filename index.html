@@ -55,12 +55,25 @@
             font-size: 16px;
         }
         
-        /* Estilo visual para indicar que el campo está bloqueado */
-        input[readonly] {
-            background-color: #e9ecef;
-            color: #6c757d;
-            border: 1px solid #ced4da;
-            cursor: not-allowed;
+        /* Contenedor especial para simular el prefijo P- dentro del input */
+        .posicion-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .posicion-prefijo {
+            position: absolute;
+            left: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            pointer-events: none; /* Evita que interfiera al hacer click */
+        }
+        /* Ajustamos el padding izquierdo del input para que el texto no pise al prefijo P- */
+        #posicion {
+            padding-left: 32px; 
+            text-transform: uppercase; /* Fuerza visualmente las mayúsculas al escribir */
         }
 
         button[type="submit"] {
@@ -111,7 +124,10 @@
         <input type="number" id="cantidad" name="cantidad" value="1" min="1" required readonly>
 
         <label id="lblPosicion" for="posicion">Posición de Guardado:</label>
-        <input type="text" id="posicion" name="posicion" required placeholder="Ej: Estante A-1">
+        <div class="posicion-wrapper">
+            <span class="posicion-prefijo">P-</span>
+            <input type="text" id="posicion" name="posicion" required placeholder="Ej: 14 o 05-A">
+        </div>
 
         <button type="submit" id="btnEnviar">Enviar a Google Sheets</button>
     </form>
@@ -131,10 +147,10 @@
         radio.addEventListener('change', function() {
             if (this.value === 'Entrada') {
                 lblPosicion.innerText = "Posición de Guardado:";
-                inputPosicion.placeholder = "Ej: Estante A-1";
+                inputPosicion.placeholder = "Ej: 14 o 05-A";
             } else {
                 lblPosicion.innerText = "Origen de Salida (¿De dónde sale?):";
-                inputPosicion.placeholder = "Ej: Estante A-1 o Mesa de despacho";
+                inputPosicion.placeholder = "Ej: 14 o 05-A";
             }
         });
     });
@@ -149,9 +165,20 @@
         btn.disabled = true;
         btn.innerText = "Enviando...";
         
+        // Creamos un objeto de parámetros de URL para enviar los datos
         const formData = new FormData(this);
+        
+        // --- AQUÍ HACEMOS LA MAGIA DEL FORMATEO ---
+        // Tomamos lo que escribió el usuario, le quitamos espacios, lo pasamos a MAYÚSCULAS y le ponemos el "P-" adelante
+        const valorPosicion = document.getElementById('posicion').value.trim().toUpperCase();
+        const posicionFormateada = "P-" + valorPosicion;
+        
+        // Reemplazamos el valor original en los datos que se van a enviar
+        formData.set('posicion', posicionFormateada);
+        
         const queryParams = new URLSearchParams(formData).toString();
         
+        // Mantenemos tu Fetch original concatenando a la URL
         fetch(`${WEB_APP_URL}?${queryParams}`, {
             method: 'POST'
         })
@@ -164,9 +191,9 @@
                 
                 // Limpiar campos para la siguiente lectura
                 document.getElementById('codigo').value = '';
-                document.getElementById('cantidad').value = '1'; // Se mantiene en 1
+                document.getElementById('cantidad').value = '1'; 
                 document.getElementById('posicion').value = '';
-                document.getElementById('codigo').focus(); // Foco al código para agilizar
+                document.getElementById('codigo').focus(); 
             } else {
                 msgDiv.style.backgroundColor = "#f8d7da";
                 msgDiv.style.color = "#721c24";
