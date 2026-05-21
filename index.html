@@ -68,7 +68,7 @@
             font-size: 16px;
             font-weight: bold;
             color: #555;
-            pointer-events: none; /* Evita que interfiera al hacer click */
+            pointer-events: none;
         }
         /* Ajustamos el padding izquierdo del input para que el texto no pise al prefijo P- */
         #posicion {
@@ -121,7 +121,7 @@
         <input type="text" id="codigo" name="codigo" required autofocus placeholder="Escanee producto">
 
         <label for="cantidad">Cantidad:</label>
-        <input type="number" id="cantidad" name="cantidad" value="1" min="1" required readonly>
+        <input type="number" id="cantidad" name="cantidad" value="1" min="1" required>
 
         <label id="lblPosicion" for="posicion">Posición de Guardado:</label>
         <div class="posicion-wrapper">
@@ -168,17 +168,17 @@
         // Creamos un objeto de parámetros de URL para enviar los datos
         const formData = new FormData(this);
         
-        // --- AQUÍ HACEMOS LA MAGIA DEL FORMATEO ---
-        // Tomamos lo que escribió el usuario, le quitamos espacios, lo pasamos a MAYÚSCULAS y le ponemos el "P-" adelante
+        // --- FORMATEO DE POSICIÓN ---
+        // Tomamos lo que escribió el usuario, quitamos espacios, pasamos a MAYÚSCULAS y agregamos "P-"
         const valorPosicion = document.getElementById('posicion').value.trim().toUpperCase();
         const posicionFormateada = "P-" + valorPosicion;
         
-        // Reemplazamos el valor original en los datos que se van a enviar
+        // Reemplazamos el valor en el set de datos final
         formData.set('posicion', posicionFormateada);
         
         const queryParams = new URLSearchParams(formData).toString();
         
-        // Mantenemos tu Fetch original concatenando a la URL
+        // Fetch original por URL
         fetch(`${WEB_APP_URL}?${queryParams}`, {
             method: 'POST'
         })
