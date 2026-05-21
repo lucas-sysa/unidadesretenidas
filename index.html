@@ -3,202 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Handheld - Inventario & Consulta</title>
+    <title>Handheld - Control de Inventario</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 10px; 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 10px;
             padding: 0;
-            background-color: #f4f4f9; 
+            background-color: #f4f4f9;
         }
-        .container { 
-            max-width: 400px; 
-            margin: 0 auto; 
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         h2 { text-align: center; color: #333; margin-top: 0; }
         label { font-weight: bold; display: block; margin-top: 12px; }
         
-        /* Pestañas de Navegación */
-        .tabs { 
-            display: flex; 
-            margin-bottom: 15px; 
-            border-bottom: 2px solid #ccc; 
+        .tipo-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
         }
-        .tab-btn { 
-            flex: 1; 
-            padding: 12px; 
-            text-align: center; 
-            cursor: pointer; 
-            font-weight: bold; 
-            background: #e0e0e0; 
-            border: none; 
-            font-size: 14px;
+        .tipo-btn {
+            flex: 1;
+            margin: 5px;
+            text-align: center;
         }
-        .tab-btn.active { 
-            background: #3498db; 
-            color: white; 
-        }
-        .tab-content { 
-            display: none; 
-        }
-        .tab-content.active { 
-            display: block; 
-        }
-
-        .tipo-container { 
-            display: flex; 
-            justify-content: space-between; 
-            margin-bottom: 15px; 
-        }
-        .tipo-btn { 
-            flex: 1; 
-            margin: 5px; 
-            text-align: center; 
-        }
-        .tipo-btn input { 
-            display: none; 
-        }
-        .tipo-btn span { 
-            display: block; 
-            padding: 15px; 
-            background: #e0e0e0; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 18px; 
+        .tipo-btn input { display: none; }
+        .tipo-btn span {
+            display: block;
+            padding: 15px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
         }
         .tipo-btn input:checked + span.entrada { background: #2ecc71; color: white; }
         .tipo-btn input:checked + span.salida { background: #e74c3c; color: white; }
 
-        input[type="text"], input[type="number"] { 
-            width: 100%; 
-            padding: 12px; 
-            margin-top: 5px; 
-            box-sizing: border-box; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            font-size: 16px; 
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
         }
         
-        /* Estilo visual para el campo bloqueado de Cantidad */
-        input[readonly] { 
-            background-color: #e9ecef; 
-            color: #6c757d; 
+        /* Estilo visual para indicar que el campo de cantidad está bloqueado */
+        input[readonly] {
+            background-color: #e9ecef;
+            color: #6c757d;
             border: 1px solid #ced4da;
-            cursor: not-allowed; 
+            cursor: not-allowed;
         }
-        
-        button.btn-block { 
-            width: 100%; 
-            background-color: #3498db; 
-            color: white; 
-            padding: 15px; 
-            border: none; 
-            border-radius: 4px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            margin-top: 20px; 
-            cursor: pointer; 
+
+        button[type="submit"] {
+            width: 100%;
+            background-color: #3498db;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
         }
-        button.btn-block:disabled { 
-            background-color: #bdc3c7; 
-        }
-        
-        #mensaje, #resultadoConsulta { 
-            margin-top: 15px; 
-            padding: 10px; 
-            text-align: center; 
-            font-weight: bold; 
-            border-radius: 4px; 
-            display: none; 
-        }
-        
-        /* Cuadro de información de ubicación */
-        .info-box { 
-            background: #fff3cd; 
-            color: #856404; 
-            border: 1px solid #ffeeba; 
-            padding: 15px; 
-            border-radius: 5px; 
-            margin-top: 15px; 
-            text-align: left; 
-        }
-        .info-box strong { 
-            color: #000; 
+        button[type="submit"]:disabled { background-color: #bdc3c7; }
+        #mensaje {
+            margin-top: 15px;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+            display: none;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('registro')">REGISTRAR</button>
-        <button class="tab-btn" onclick="switchTab('consulta')">🔍 BUSCAR UBICACIÓN</button>
-    </div>
+    <h2>Registro de Inventario</h2>
     
-    <div id="tab-registro" class="tab-content active">
-        <h2>Registro de Inventario</h2>
-        <form id="inventarioForm">
-            <label>Movimiento:</label>
-            <div class="tipo-container">
-                <label class="tipo-btn">
-                    <input type="radio" name="tipo" value="Entrada" checked>
-                    <span class="entrada">ENTRADA</span>
-                </label>
-                <label class="tipo-btn">
-                    <input type="radio" name="tipo" value="Salida">
-                    <span class="salida">SALIDA</span>
-                </label>
-            </div>
+    <form id="inventarioForm">
+        <label>Movimiento:</label>
+        <div class="tipo-container">
+            <label class="tipo-btn">
+                <input type="radio" name="tipo" value="Entrada" checked>
+                <span class="entrada">ENTRADA</span>
+            </label>
+            <label class="tipo-btn">
+                <input type="radio" name="tipo" value="Salida">
+                <span class="salida">SALIDA</span>
+            </label>
+        </div>
 
-            <label for="codigo">Código de Barras / SKU / Serie:</label>
-            <input type="text" id="codigo" name="codigo" required autofocus placeholder="Escanee producto">
+        <label for="codigo">Código de Barras / SKU / Serie:</label>
+        <input type="text" id="codigo" name="codigo" required autofocus placeholder="Escanee producto">
 
-            <label for="cantidad">Cantidad:</label>
-            <input type="number" id="cantidad" name="cantidad" value="1" required readonly>
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" id="cantidad" name="cantidad" value="1" required readonly>
 
-            <label id="lblPosicion" for="posicion">Posición de Guardado:</label>
-            <input type="text" id="posicion" name="posicion" required placeholder="Ej: Estante A-1">
+        <label id="lblPosicion" for="posicion">Posición de Guardado:</label>
+        <input type="text" id="posicion" name="posicion" required placeholder="Ej: Estante A-1">
 
-            <button type="submit" class="btn-block" id="btnEnviar">Enviar a Google Sheets</button>
-        </form>
-        <div id="mensaje"></div>
-    </div>
+        <button type="submit" id="btnEnviar">Enviar a Google Sheets</button>
+    </form>
 
-    <div id="tab-consulta" class="tab-content">
-        <h2>Localizador de Series</h2>
-        <p style="font-size: 14px; color:#666; text-align:center;">Escanee o escriba un producto para saber dónde está guardado antes de hacer la salida.</p>
-        
-        <label for="buscarCodigo">Buscar Producto o Serie:</label>
-        <input type="text" id="buscarCodigo" placeholder="Escanee serie o descripción...">
-        <button type="button" class="btn-block" style="background-color: #2c3e50;" onclick="consultarUbicacion()">Buscar en Almacén</button>
-        
-        <div id="resultadoConsulta"></div>
-    </div>
+    <div id="mensaje"></div>
 </div>
 
 <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzc1-GYHEGpA0PNkgPlopSDTV5oWK8VVNcqDLFbCk80KStuB01XNH6NBs1j4kIm8Cv50A/exec";
-
-    // Navegación entre las pestañas Registrar y Buscar Ubicación
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        if(tab === 'registro') {
-            document.querySelector('[onclick="switchTab(\'registro\')"]').classList.add('active');
-            document.getElementById('tab-registro').classList.add('active');
-            document.getElementById('codigo').focus();
-        } else {
-            document.querySelector('[onclick="switchTab(\'consulta\')"]').classList.add('active');
-            document.getElementById('tab-consulta').classList.add('active');
-            document.getElementById('buscarCodigo').focus();
-        }
-    }
 
     // Cambiar dinámicamente las etiquetas de texto según el movimiento seleccionado
     const radios = document.querySelectorAll('input[name="tipo"]');
@@ -216,56 +138,6 @@
             }
         });
     });
-
-    // Función que consulta el Stock Actual de forma remota (Usa la función doGet en Apps Script)
-    function consultarUbicacion() {
-        const codigo = document.getElementById('buscarCodigo').value.trim();
-        const resDiv = document.getElementById('resultadoConsulta');
-        
-        if(!codigo) return;
-        
-        resDiv.style.display = "block";
-        resDiv.style.backgroundColor = "#e2e3e5";
-        resDiv.style.color = "#383d41";
-        resDiv.innerHTML = "Buscando en tiempo real...";
-        
-        fetch(`${WEB_APP_URL}?codigo=${encodeURIComponent(codigo)}`)
-        .then(response => response.json())
-        .then(data => {
-            if(data.encontrado) {
-                resDiv.style.backgroundColor = "#d1e7dd";
-                resDiv.style.color = "#0f5132";
-                resDiv.innerHTML = `
-                    <div class="info-box">
-                        <strong>📦 Artículo:</strong> ${data.descripcion}<br>
-                        <strong>🔍 Serie:</strong> ${data.serie}<br>
-                        <strong>📍 UBICACIÓN ACTUAL:</strong> <span style="font-size:18px; color:#d9534f; font-weight:bold;">${data.posicion}</span><br>
-                        <strong>🔢 Stock Disponible:</strong> ${data.stock} u.
-                    </div>
-                    <button class="btn-block" style="background-color:#e74c3c; margin-top:10px;" onclick="prepararSalida('${data.serie}', '${data.posicion}')">Llevar a Despacho (Salida)</button>
-                `;
-            } else {
-                resDiv.style.backgroundColor = "#f8d7da";
-                resDiv.style.color = "#842029";
-                resDiv.innerHTML = "❌ Producto no encontrado o sin Stock disponible en almacén.";
-            }
-        })
-        .catch(err => {
-            resDiv.style.backgroundColor = "#f8d7da";
-            resDiv.style.color = "#842029";
-            resDiv.innerHTML = "Error al conectar con la base de datos: " + err;
-        });
-    }
-
-    // Pasa los datos encontrados directo a la pestaña de registro y setea en "Salida"
-    function prepararSalida(serie, posicion) {
-        switchTab('registro');
-        document.querySelector('input[name="tipo"][value="Salida"]').checked = true;
-        lblPosicion.innerText = "Origen de Salida (¿De dónde sale?):";
-        document.getElementById('codigo').value = serie;
-        document.getElementById('posicion').value = posicion;
-        document.getElementById('btnEnviar').focus();
-    }
 
     // Envío del Formulario a Google Sheets (Usa la función doPost en Apps Script)
     document.getElementById('inventarioForm').addEventListener('submit', function(e) {
@@ -290,9 +162,7 @@
                 // Limpieza de campos post-envío manteniendo la cantidad fija en 1
                 document.getElementById('codigo').value = '';
                 document.getElementById('posicion').value = '';
-                document.getElementById('resultadoConsulta').style.display = "none";
-                document.getElementById('buscarCodigo').value = '';
-                document.getElementById('codigo').focus();
+                document.getElementById('codigo').focus(); // Re-enfocar el lector para agilizar
             } else {
                 msgDiv.style.backgroundColor = "#f8d7da";
                 msgDiv.style.color = "#721c24";
