@@ -139,6 +139,26 @@
         });
     });
 
+    // Controlar que no se borre el prefijo "P-"
+    inputPosicion.addEventListener('input', function() {
+        if (!this.value.startsWith('P-')) {
+            this.value = 'P-';
+        }
+    });
+
+    // Controlar que si hacen click o intentan posicionar el cursor antes de "P-", los regrese al final
+    inputPosicion.addEventListener('keydown', function(e) {
+        if (this.selectionStart < 2 && (e.key === 'Backspace' || e.key === 'Delete')) {
+            e.preventDefault();
+        }
+    });
+
+    inputPosicion.addEventListener('click', function() {
+        if (this.selectionStart < 2) {
+            this.setSelectionRange(this.value.length, this.value.length);
+        }
+    });
+
     // Envío del Formulario a Google Sheets (Usa la función doPost en Apps Script)
     document.getElementById('inventarioForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
