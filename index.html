@@ -111,7 +111,7 @@
         <input type="number" id="cantidad" name="cantidad" value="1" required readonly>
 
         <label id="lblPosicion" for="posicion">Posición de Guardado:</label>
-        <input type="text" id="posicion" name="posicion" required placeholder="Ej: Estante A-1">
+        <input type="text" id="posicion" name="posicion" value="P-" required placeholder="Ej: P-1">
 
         <button type="submit" id="btnEnviar">Enviar a Google Sheets</button>
     </form>
@@ -131,10 +131,10 @@
         radio.addEventListener('change', function() {
             if (this.value === 'Entrada') {
                 lblPosicion.innerText = "Posición de Guardado:";
-                inputPosicion.placeholder = "Ej: Estante A-1";
+                inputPosicion.placeholder = "Ej: P-1";
             } else {
                 lblPosicion.innerText = "Origen de Salida (¿De dónde sale?):";
-                inputPosicion.placeholder = "Ej: Estante A-1";
+                inputPosicion.placeholder = "Ej: P-1";
             }
         });
     });
@@ -159,9 +159,9 @@
                 msgDiv.style.color = "#155724";
                 msgDiv.innerHTML = data;
                 
-                // Limpieza de campos post-envío manteniendo la cantidad fija en 1
+                // Limpieza de campos post-envío manteniendo la cantidad en 1 y la posición reiniciada en "P-"
                 document.getElementById('codigo').value = '';
-                document.getElementById('posicion').value = '';
+                document.getElementById('posicion').value = 'P-';
                 document.getElementById('codigo').focus(); // Re-enfocar el lector para agilizar
             } else {
                 msgDiv.style.backgroundColor = "#f8d7da";
